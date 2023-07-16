@@ -3,12 +3,14 @@ import streamlit as st
 from streamlit_chat import message
 
 # Setting page title and header
-st.set_page_config(page_title="AVA", page_icon=":robot_face:")
-st.markdown("<h1 style='text-align: center;'>AVA - a totally harmless chatbot 😬</h1>", unsafe_allow_html=True)
+st.set_page_config(page_title="嘻嘻喵", page_icon=":star:")
+st.markdown("<h1 style='text-align: center;'>\
+            嘻嘻喵\
+            </h1>", unsafe_allow_html=True)
 
 # Set org ID and API key
-openai.organization = "<YOUR_OPENAI_ORG_ID>"
-openai.api_key = "<YOUR_OPENAI_API_KEY>"
+openai.organization = st.secrets["openai"]["organization"]
+openai.api_key = st.secrets["openai"]["api_key"]
 
 # Initialise session state variables
 if 'generated' not in st.session_state:
@@ -29,17 +31,20 @@ if 'total_cost' not in st.session_state:
     st.session_state['total_cost'] = 0.0
 
 # Sidebar - let user choose model, show total cost of current conversation, and let user clear the current conversation
-st.sidebar.title("Sidebar")
-model_name = st.sidebar.radio("Choose a model:", ("GPT-3.5", "GPT-4"))
+st.sidebar.title("Sidebar喵")
+# model_name = st.sidebar.radio("Choose a model:", ("GPT-3.5", "GPT-4"))
 counter_placeholder = st.sidebar.empty()
-counter_placeholder.write(f"Total cost of this conversation: ${st.session_state['total_cost']:.5f}")
-clear_button = st.sidebar.button("Clear Conversation", key="clear")
+# counter_placeholder.write(f"Total cost of this conversation: ${st.session_state['total_cost']:.5f}")
+clear_button = st.sidebar.button("清空记录喵", key="clear")
 
 # Map model names to OpenAI model IDs
+model_name = "GPT-3.5"
+
 if model_name == "GPT-3.5":
     model = "gpt-3.5-turbo"
 else:
     model = "gpt-4"
+
 
 # reset everything
 if clear_button:
@@ -53,7 +58,7 @@ if clear_button:
     st.session_state['cost'] = []
     st.session_state['total_cost'] = 0.0
     st.session_state['total_tokens'] = []
-    counter_placeholder.write(f"Total cost of this conversation: ${st.session_state['total_cost']:.5f}")
+    # counter_placeholder.write(f"Total cost of this conversation: ${st.session_state['total_cost']:.5f}")
 
 
 # generate a response
@@ -82,7 +87,7 @@ container = st.container()
 with container:
     with st.form(key='my_form', clear_on_submit=True):
         user_input = st.text_area("You:", key='input', height=100)
-        submit_button = st.form_submit_button(label='Send')
+        submit_button = st.form_submit_button(label='发送喵')
 
     if submit_button and user_input:
         output, total_tokens, prompt_tokens, completion_tokens = generate_response(user_input)
@@ -97,14 +102,14 @@ with container:
         else:
             cost = (prompt_tokens * 0.03 + completion_tokens * 0.06) / 1000
 
-        st.session_state['cost'].append(cost)
-        st.session_state['total_cost'] += cost
+        # st.session_state['cost'].append(cost)
+        # st.session_state['total_cost'] += cost
 
 if st.session_state['generated']:
     with response_container:
         for i in range(len(st.session_state['generated'])):
             message(st.session_state["past"][i], is_user=True, key=str(i) + '_user')
             message(st.session_state["generated"][i], key=str(i))
-            st.write(
-                f"Model used: {st.session_state['model_name'][i]}; Number of tokens: {st.session_state['total_tokens'][i]}; Cost: ${st.session_state['cost'][i]:.5f}")
-            counter_placeholder.write(f"Total cost of this conversation: ${st.session_state['total_cost']:.5f}")
+            # st.write(\
+                # f"Model used: {st.session_state['model_name'][i]}; Number of tokens: {st.session_state['total_tokens'][i]}; Cost: ${st.session_state['cost'][i]:.5f}")\
+            # counter_placeholder.write(f"Total cost of this conversation: ${st.session_state['total_cost']:.5f}")
