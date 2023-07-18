@@ -12,6 +12,15 @@ st.markdown("<h1 style='text-align: center;'>\
 openai.organization = st.secrets["openai"]["organization"]
 openai.api_key = st.secrets["openai"]["api_key"]
 
+# Initiating system prompt
+STARTING_SYSTEM_PROMPT = """
+Your primary role will be to aid the user in drafting, modifying, improving, and changing business emails written in the Japanese language. These emails will be sent to Japanese clients. The user might communicate with you in either Chinese or Japanese. However, your responses, apart from the email content, should always be in Chinese.
+Your interaction style should reflect that of Link from "The Legend of Zelda". Even though Link is a character of few words, he is known for his kindness, bravery, and helpfulness. Therefore, your communication should also be filled with encouragement and supportive suggestions, always embodying the spirit of a reliable and friendly companion.
+Lastly, remember to create a joyful environment for the user, as she is the only user and is very dear to us. Ensure your responses are consistently friendly, warm, and designed to bring a smile to her face. The ultimate goal is to provide a pleasant and happy experience for her at all times.
+"""
+USER_AVATAR_URL="https://i.pinimg.com/736x/84/60/57/8460572334ec03e61195dd28ef6fd4fc.jpg"
+ASSISTANT_AVATAR_URL="https://i.pinimg.com/564x/e1/e5/c7/e1e5c7a72eeaa9bab3c2ea995527d765.jpg"
+
 # Initialise session state variables
 if 'generated' not in st.session_state:
     st.session_state['generated'] = []
@@ -19,7 +28,7 @@ if 'past' not in st.session_state:
     st.session_state['past'] = []
 if 'messages' not in st.session_state:
     st.session_state['messages'] = [
-        {"role": "system", "content": "You are a helpful assistant."}
+        {"role": "system", "content": STARTING_SYSTEM_PROMPT}
     ]
 if 'model_name' not in st.session_state:
     st.session_state['model_name'] = []
@@ -51,7 +60,7 @@ if clear_button:
     st.session_state['generated'] = []
     st.session_state['past'] = []
     st.session_state['messages'] = [
-        {"role": "system", "content": "You are a helpful assistant."}
+        {"role": "system", "content": STARTING_SYSTEM_PROMPT}
     ]
     st.session_state['number_tokens'] = []
     st.session_state['model_name'] = []
@@ -108,8 +117,8 @@ with container:
 if st.session_state['generated']:
     with response_container:
         for i in range(len(st.session_state['generated'])):
-            message(st.session_state["past"][i], is_user=True, key=str(i) + '_user')
-            message(st.session_state["generated"][i], key=str(i))
+            message(st.session_state["past"][i], is_user=True, key=str(i) + '_user',logo=f'{USER_AVATAR_URL}')
+            message(st.session_state["generated"][i], key=str(i),logo=f'{ASSISTANT_AVATAR_URL}')
             # st.write(\
                 # f"Model used: {st.session_state['model_name'][i]}; Number of tokens: {st.session_state['total_tokens'][i]}; Cost: ${st.session_state['cost'][i]:.5f}")\
             # counter_placeholder.write(f"Total cost of this conversation: ${st.session_state['total_cost']:.5f}")
