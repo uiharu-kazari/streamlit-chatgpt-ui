@@ -15,18 +15,24 @@ openai.api_key = st.secrets["openai"]["api_key"]
 # Sidebar - let user choose model, show total cost of current conversation, and let user clear the current conversation
 # st.sidebar.title("Sidebar喵")
 
+DELIMITER = "####"
+USER_AVATAR_URL="https://i.pinimg.com/736x/84/60/57/8460572334ec03e61195dd28ef6fd4fc.jpg"
+ASSISTANT_AVATAR_URL="https://c.fantia.jp/uploads/post/file/2014245/main_webp_13781999-68b9-46f4-b520-578091187fb9.webp"
+
+
 # Initiating system prompt
 role_play_character = st.sidebar.radio("我是普尔亚制造的人工智能助手咩？(切换模式之后清空内容才起作用喵)", ("是喵", "不是喵"))
 
 if role_play_character == "是喵":
-    STARTING_SYSTEM_PROMPT = """
+    STARTING_SYSTEM_PROMPT = f"""
     Purah (also known as プルア in Japanese or 普尔亚 in Chinese) is a figure in the game The Legend of Zelda: Breath of the Wild. She is a Sheikah(シーカー/希卡) researcher and director of the Hateno Ancient Tech Lab(哈特诺古代研究所). She is a renowned authority on ancient technology.
-    As an AI assistant created by Purah, you will facilitate Princess Zelda (also known as 公主殿下 or 塞尔达公主 or ゼルダ姫) in composing, editing, transforming, and enhancing business emails written in Japanese to her Japanese clients. Follow the instructions below:
+    As an AI assistant created by Purah, you task it to facilitate Princess Zelda (also known as 公主殿下 or 塞尔达公主 or ゼルダ姫) in composing, editing, transforming, and enhancing business emails written in Japanese to her Japanese clients. Follow the instructions below:
     1. Your response shall be implicitly categorized into one of the following categories: (1) Non-email contents (2) email contents.
     2. For (1) Non-email contents, use Chinese and mimic Purah's tone and style, unless the user tell you to do something else
     3. For (2) Email contents, use Japanese and ensure that the language and style of the emails remain formal and in line with business norms, not reflecting Purah's tone. The ultimate objective is to assist the user in effectively communicating with her Japanese clients in a professional manner.
     4. All other communications with the user shall be in Chinese.
     5. You shall address the user as 公主殿下 or 塞尔达公主 or ゼルダ姫.
+    6. The user input message will be delimited with {DELIMITER} characters.
     """
 elif role_play_character == "不是喵":
     STARTING_SYSTEM_PROMPT = """
@@ -35,13 +41,9 @@ elif role_play_character == "不是喵":
     The email should be written in Japanese and should be formal and in line with business norms.
     All other communications with the user shall be in Chinese.
     """
-    STARTING_SYSTEM_PROMPT = ""
 else: 
     raise NotImplementedError
 
-DELIMITER = ""
-USER_AVATAR_URL="https://i.pinimg.com/736x/84/60/57/8460572334ec03e61195dd28ef6fd4fc.jpg"
-ASSISTANT_AVATAR_URL="https://c.fantia.jp/uploads/post/file/2014245/main_webp_13781999-68b9-46f4-b520-578091187fb9.webp"
 
 # Initialise session state variables
 if 'generated' not in st.session_state:
@@ -94,7 +96,10 @@ if clear_button:
 
 # generate a response
 def generate_response(prompt):
-    st.session_state['messages'].append({"role": "user", "content": f"{DELIMITER}{prompt}{DELIMITER}"})
+    user_message_for_model = prompt.replace(DELIMITER, "")
+    user_message_for_model = f"{DELIMITER}{prompt}{DELIMITER}"
+
+    st.session_state['messages'].append({"role": "user", "content": user_message_for_model})
 
     completion = openai.ChatCompletion.create(
         model=model,
